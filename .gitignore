@@ -1,0 +1,14 @@
+# Build results
+bin/
+obj/
+
+# User-specific stuff
+.vs/
+*.user
+*.suo
+
+# SQLite database
+*.db
+
+# Secrets (keep schema, ignore dev config with passwords)
+appsettings.Development.json
