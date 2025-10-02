@@ -1,0 +1,180 @@
+@model FacilityManagement.Models.Facility
+@{
+    ViewData["Title"] = "Facility Details";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2>@Model.Name</h2>
+    <div>
+        <a asp-controller="StorageUnit" asp-action="Create" asp-route-facilityId="@Model.Id" class="btn btn-success">Add Storage Unit</a>
+        <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-warning">Edit Facility</a>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h5>Facility Information</h5>
+            </div>
+            <div class="card-body">
+                <dl class="row">
+                    <dt class="col-sm-4">Name:</dt>
+                    <dd class="col-sm-8">@Model.Name</dd>
+                    
+                    <dt class="col-sm-4">Owner:</dt>
+                    <dd class="col-sm-8">@Model.Owner.Name (@Model.Owner.Email)</dd>
+                    
+                    @if (!string.IsNullOrEmpty(Model.Description))
+                    {
+                        <dt class="col-sm-4">Description:</dt>
+                        <dd class="col-sm-8">@Model.Description</dd>
+                    }
+                    
+                    <dt class="col-sm-4">Address:</dt>
+                    <dd class="col-sm-8">
+                        @Model.Address<br>
+                        @if (!string.IsNullOrEmpty(Model.City))
+                        {
+                            <span>@Model.City @Model.PostalCode</span><br>
+                        }
+                        @if (!string.IsNullOrEmpty(Model.Country))
+                        {
+                            <span>@Model.Country</span>
+                        }
+                    </dd>
+                    
+                    <dt class="col-sm-4">Created:</dt>
+                    <dd class="col-sm-8">@Model.CreatedAt.ToString("MMMM dd, yyyy")</dd>
+                </dl>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h5>Statistics</h5>
+            </div>
+            <div class="card-body">
+                @{
+                    var totalUnits = Model.StorageUnits.Count;
+                    var occupiedUnits = Model.StorageUnits.Count(u => u.IsOccupied);
+                    var availableUnits = totalUnits - occupiedUnits;
+                    var occupancyRate = totalUnits > 0 ? (double)occupiedUnits / totalUnits * 100 : 0;
+                }
+                
+                <div class="row text-center">
+                    <div class="col-4">
+                        <h3 class="text-primary">@totalUnits</h3>
+                        <p class="text-muted">Total Units</p>
+                    </div>
+                    <div class="col-4">
+                        <h3 class="text-success">@availableUnits</h3>
+                        <p class="text-muted">Available</p>
+                    </div>
+                    <div class="col-4">
+                        <h3 class="text-warning">@occupiedUnits</h3>
+                        <p class="text-muted">Occupied</p>
+                    </div>
+                </div>
+                
+                <div class="mt-3">
+                    <label class="form-label">Occupancy Rate: @occupancyRate.ToString("F1")%</label>
+                    <div class="progress">
+                        <div class="progress-bar @(occupancyRate > 80 ? "bg-success" : occupancyRate > 50 ? "bg-warning" : "bg-danger")" 
+                             role="progressbar" style="width: @occupancyRate%" 
+                             aria-valuenow="@occupancyRate" aria-valuemin="0" aria-valuemax="100">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row mt-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5>Storage Units</h5>
+                <a asp-controller="StorageUnit" asp-action="Create" asp-route-facilityId="@Model.Id" class="btn btn-sm btn-success">Add Unit</a>
+            </div>
+            <div class="card-body">
+                @if (Model.StorageUnits.Any())
+                {
+                    <div class="table-responsive">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Unit Number</th>
+                                    <th>Size (m²)</th>
+                                    <th>Monthly Price</th>
+                                    <th>Status</th>
+                                    <th>Occupant</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var unit in Model.StorageUnits.OrderBy(u => u.UnitNumber))
+                                {
+                                    <tr class="@(unit.IsOccupied ? "table-warning" : "table-success")">
+                                        <td><strong>@unit.UnitNumber</strong></td>
+                                        <td>@unit.SizeSquareMeters</td>
+                                        <td>$@unit.MonthlyPrice</td>
+                                        <td>
+                                            @if (unit.IsOccupied)
+                                            {
+                                                <span class="badge bg-warning">Occupied</span>
+                                            }
+                                            else
+                                            {
+                                                <span class="badge bg-success">Available</span>
+                                            }
+                                        </td>
+                                        <td>
+                                            @if (unit.Occupant != null)
+                                            {
+                                                <span>@unit.Occupant.Name</span>
+                                                <br><small class="text-muted">Since @unit.OccupiedAt?.ToString("MMM dd, yyyy")</small>
+                                            }
+                                            else
+                                            {
+                                                <span class="text-muted">-</span>
+                                            }
+                                        </td>
+                                        <td>
+                                            <div class="btn-group" role="group">
+                                                <a asp-controller="StorageUnit" asp-action="Details" asp-route-id="@unit.Id" class="btn btn-sm btn-outline-info">Details</a>
+                                                <a asp-controller="StorageUnit" asp-action="Edit" asp-route-id="@unit.Id" class="btn btn-sm btn-outline-warning">Edit</a>
+                                                @if (unit.IsOccupied)
+                                                {
+                                                    <form asp-controller="StorageUnit" asp-action="Vacate" asp-route-id="@unit.Id" method="post" style="display: inline;">
+                                                        <button type="submit" class="btn btn-sm btn-outline-success" onclick="return confirm('Are you sure you want to vacate this unit?')">Vacate</button>
+                                                    </form>
+                                                }
+                                            </div>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                }
+                else
+                {
+                    <div class="text-center py-4">
+                        <p class="text-muted">No storage units have been added to this facility yet.</p>
+                        <a asp-controller="StorageUnit" asp-action="Create" asp-route-facilityId="@Model.Id" class="btn btn-primary">Add First Storage Unit</a>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="mt-3">
+    <a asp-action="Index" class="btn btn-secondary">Back to Facilities</a>
+    <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-warning">Edit</a>
+    <a asp-action="Delete" asp-route-id="@Model.Id" class="btn btn-danger">Delete</a>
+</div>

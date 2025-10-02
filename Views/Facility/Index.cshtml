@@ -1,0 +1,73 @@
+@model IEnumerable<FacilityManagement.Models.Facility>
+@{
+    ViewData["Title"] = "Facilities";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2>Facilities</h2>
+    <a asp-action="Create" class="btn btn-primary">Create New Facility</a>
+</div>
+
+<div class="card">
+    <div class="card-body">
+        @if (Model.Any())
+        {
+            <div class="table-responsive">
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Owner</th>
+                            <th>Address</th>
+                            <th>Storage Units</th>
+                            <th>Created</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var facility in Model)
+                        {
+                            <tr>
+                                <td>
+                                    <strong>@facility.Name</strong>
+                                    @if (!string.IsNullOrEmpty(facility.Description))
+                                    {
+                                        <br><small class="text-muted">@facility.Description</small>
+                                    }
+                                </td>
+                                <td>@facility.Owner.Name</td>
+                                <td>
+                                    @facility.Address
+                                    @if (!string.IsNullOrEmpty(facility.City))
+                                    {
+                                        <br><small>@facility.City, @facility.PostalCode</small>
+                                    }
+                                </td>
+                                <td>
+                                    <span class="badge bg-primary">@facility.StorageUnits.Count Total</span>
+                                    <span class="badge bg-success">@facility.StorageUnits.Count(u => !u.IsOccupied) Available</span>
+                                </td>
+                                <td>@facility.CreatedAt.ToString("MMM dd, yyyy")</td>
+                                <td>
+                                    <div class="btn-group" role="group">
+                                        <a asp-action="Details" asp-route-id="@facility.Id" class="btn btn-sm btn-outline-info">Details</a>
+                                        <a asp-action="Edit" asp-route-id="@facility.Id" class="btn btn-sm btn-outline-warning">Edit</a>
+                                        <a asp-controller="StorageUnit" asp-action="Index" asp-route-facilityId="@facility.Id" class="btn btn-sm btn-outline-primary">Units</a>
+                                        <a asp-action="Delete" asp-route-id="@facility.Id" class="btn btn-sm btn-outline-danger">Delete</a>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+        else
+        {
+            <div class="text-center py-4">
+                <p class="text-muted">No facilities found.</p>
+                <a asp-action="Create" class="btn btn-primary">Create First Facility</a>
+            </div>
+        }
+    </div>
+</div>

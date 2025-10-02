@@ -1,7 +1,111 @@
-﻿@{
-    ViewData["Title"] = "Home Page";
+﻿@model FacilityManagement.Models.HomeViewModel
+@{
+    ViewData["Title"] = "Dashboard";
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
+<div class="row">
+    <div class="col-md-12">
+        <h1 class="display-4">@Model.Message</h1>
+        <p class="lead">Today is @Model.Today.ToString("MMMM dd, yyyy")</p>
+    </div>
+</div>
+
+<div class="row mt-4">
+    <div class="col-md-3">
+        <div class="card bg-primary text-white">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <h4>@Model.TotalFacilities</h4>
+                        <p class="card-text">Total Facilities</p>
+                    </div>
+                    <div class="align-self-center">
+                        <i class="fas fa-building fa-2x"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-3">
+        <div class="card bg-success text-white">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <h4>@Model.TotalStorageUnits</h4>
+                        <p class="card-text">Storage Units</p>
+                    </div>
+                    <div class="align-self-center">
+                        <i class="fas fa-warehouse fa-2x"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-3">
+        <div class="card bg-warning text-white">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <h4>@Model.OccupiedUnits</h4>
+                        <p class="card-text">Occupied Units</p>
+                    </div>
+                    <div class="align-self-center">
+                        <i class="fas fa-lock fa-2x"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-3">
+        <div class="card bg-info text-white">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <h4>@Model.TotalUsers</h4>
+                        <p class="card-text">Total Users</p>
+                    </div>
+                    <div class="align-self-center">
+                        <i class="fas fa-users fa-2x"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row mt-4">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h5>Occupancy Statistics</h5>
+            </div>
+            <div class="card-body">
+                <p><strong>Available Units:</strong> @Model.AvailableUnits</p>
+                <p><strong>Occupancy Rate:</strong> @Model.OccupancyRate.ToString("F1")%</p>
+                <div class="progress">
+                    <div class="progress-bar" role="progressbar" style="width: @Model.OccupancyRate%"
+                        aria-valuenow="@Model.OccupancyRate" aria-valuemin="0" aria-valuemax="100">
+                        @Model.OccupancyRate.ToString("F1")%
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h5>Quick Actions</h5>
+            </div>
+            <div class="card-body">
+                <a href="@Url.Action("Browse", "Home")" class="btn btn-primary btn-block mb-2">Browse Available
+                    Units</a>
+                <a href="@Url.Action("Admin", "Home")" class="btn btn-secondary btn-block mb-2">Admin Dashboard</a>
+                <a href="@Url.Action("Create", "User")" class="btn btn-success btn-block">Register New User</a>
+            </div>
+        </div>
+    </div>
 </div>
