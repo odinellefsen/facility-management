@@ -3,6 +3,7 @@ using System;
 using FacilityManagement.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -10,9 +11,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace FacilityManagement.Migrations
 {
     [DbContext(typeof(FacilityManagementContext))]
-    partial class FacilityManagementContextModelSnapshot : ModelSnapshot
+    [Migration("20251006080449_MakeOwnerIdNullable")]
+    partial class MakeOwnerIdNullable
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "9.0.9");

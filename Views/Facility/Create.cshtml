@@ -20,21 +20,6 @@
                                 <span asp-validation-for="Name" class="text-danger"></span>
                             </div>
                         </div>
-                        <div class="col-md-6">
-                            <div class="mb-3">
-                                <label asp-for="OwnerId" class="form-label">Owner</label>
-                                <select asp-for="OwnerId" class="form-select">
-                                    <option value="">Select Owner</option>
-                                    @foreach (var user in ViewBag.Users as
-                                                                        List<FacilityManagement.Models.ApplicationUser>)
-                                    {
-                                        <option value="@user.Id" selected="@(user.Id == ViewBag.CurrentUserId)">
-                                            @user.FullName (@user.Email)</option>
-                                    }
-                                </select>
-                                <span asp-validation-for="OwnerId" class="text-danger"></span>
-                            </div>
-                        </div>
                     </div>
 
                     <div class="mb-3">

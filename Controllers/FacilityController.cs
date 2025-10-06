@@ -52,19 +52,33 @@ namespace FacilityManagement.Controllers
         }
 
         // GET: Facility/Create
-        public async Task<IActionResult> Create()
+        public IActionResult Create()
         {
-            var currentUser = await _userManager.GetUserAsync(User);
-            ViewBag.Users = _context.Users.ToList();
-            ViewBag.CurrentUserId = currentUser?.Id;
             return View();
         }
 
         // POST: Facility/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Name,Description,Address,City,PostalCode,Country,OwnerId")] Facility facility)
+        public async Task<IActionResult> Create([Bind("Name,Description,Address,City,PostalCode,Country")] Facility facility)
         {
+            // Automatically set the current user as the owner BEFORE validation
+            var currentUser = await _userManager.GetUserAsync(User);
+            if (currentUser != null)
+            {
+                facility.OwnerId = currentUser.Id;
+            }
+            else
+            {
+                // If no user is found, this is a problem
+                ModelState.AddModelError("", "Unable to determine current user.");
+                return View(facility);
+            }
+
+            // Remove any validation errors for OwnerId and Owner since we set it programmatically
+            ModelState.Remove("OwnerId");
+            ModelState.Remove("Owner");
+
             if (ModelState.IsValid)
             {
                 facility.CreatedAt = DateTime.UtcNow;
@@ -72,7 +86,6 @@ namespace FacilityManagement.Controllers
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
-            ViewBag.Users = _context.Users.ToList();
             return View(facility);
         }
 
