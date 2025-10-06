@@ -1,16 +1,16 @@
 using FacilityManagement.Models;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 
 namespace FacilityManagement.Data
 {
-    public class FacilityManagementContext : DbContext
+    public class FacilityManagementContext : IdentityDbContext<ApplicationUser>
     {
         public FacilityManagementContext(DbContextOptions<FacilityManagementContext> options)
             : base(options)
         {
         }
 
-        public DbSet<User> Users { get; set; }
         public DbSet<Facility> Facilities { get; set; }
         public DbSet<StorageUnit> StorageUnits { get; set; }
 
@@ -18,13 +18,11 @@ namespace FacilityManagement.Data
         {
             base.OnModelCreating(modelBuilder);
 
-            // Configure User entity
-            modelBuilder.Entity<User>(entity =>
+            // Configure ApplicationUser entity
+            modelBuilder.Entity<ApplicationUser>(entity =>
             {
-                entity.HasKey(e => e.Id);
-                entity.HasIndex(e => e.Email).IsUnique();
-                entity.Property(e => e.Name).IsRequired().HasMaxLength(100);
-                entity.Property(e => e.Email).IsRequired().HasMaxLength(255);
+                entity.Property(e => e.FirstName).IsRequired().HasMaxLength(100);
+                entity.Property(e => e.LastName).IsRequired().HasMaxLength(100);
             });
 
             // Configure Facility entity
@@ -38,7 +36,7 @@ namespace FacilityManagement.Data
                 entity.Property(e => e.PostalCode).HasMaxLength(20);
                 entity.Property(e => e.Country).HasMaxLength(100);
 
-                // Configure relationship with User (Owner)
+                // Configure relationship with ApplicationUser (Owner)
                 entity.HasOne(f => f.Owner)
                     .WithMany(u => u.OwnedFacilities)
                     .HasForeignKey(f => f.OwnerId)
@@ -59,7 +57,7 @@ namespace FacilityManagement.Data
                     .HasForeignKey(su => su.FacilityId)
                     .OnDelete(DeleteBehavior.Cascade);
 
-                // Configure relationship with User (Occupant)
+                // Configure relationship with ApplicationUser (Occupant)
                 entity.HasOne(su => su.Occupant)
                     .WithMany(u => u.OccupiedUnits)
                     .HasForeignKey(su => su.OccupantId)

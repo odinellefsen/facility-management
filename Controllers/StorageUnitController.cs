@@ -1,17 +1,22 @@
 using FacilityManagement.Data;
 using FacilityManagement.Models;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
 namespace FacilityManagement.Controllers
 {
+    [Authorize]
     public class StorageUnitController : Controller
     {
         private readonly FacilityManagementContext _context;
+        private readonly UserManager<ApplicationUser> _userManager;
 
-        public StorageUnitController(FacilityManagementContext context)
+        public StorageUnitController(FacilityManagementContext context, UserManager<ApplicationUser> userManager)
         {
             _context = context;
+            _userManager = userManager;
         }
 
         // GET: StorageUnit
@@ -133,7 +138,7 @@ namespace FacilityManagement.Controllers
         // POST: StorageUnit/Occupy/5
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Occupy(int id, int occupantId)
+        public async Task<IActionResult> Occupy(int id, string occupantId)
         {
             var storageUnit = await _context.StorageUnits.FindAsync(id);
             if (storageUnit == null || storageUnit.IsOccupied)

@@ -1,17 +1,22 @@
 using FacilityManagement.Data;
 using FacilityManagement.Models;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
 namespace FacilityManagement.Controllers
 {
+    [Authorize]
     public class FacilityController : Controller
     {
         private readonly FacilityManagementContext _context;
+        private readonly UserManager<ApplicationUser> _userManager;
 
-        public FacilityController(FacilityManagementContext context)
+        public FacilityController(FacilityManagementContext context, UserManager<ApplicationUser> userManager)
         {
             _context = context;
+            _userManager = userManager;
         }
 
         // GET: Facility
@@ -47,9 +52,11 @@ namespace FacilityManagement.Controllers
         }
 
         // GET: Facility/Create
-        public IActionResult Create()
+        public async Task<IActionResult> Create()
         {
+            var currentUser = await _userManager.GetUserAsync(User);
             ViewBag.Users = _context.Users.ToList();
+            ViewBag.CurrentUserId = currentUser?.Id;
             return View();
         }
 

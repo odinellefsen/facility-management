@@ -1,5 +1,7 @@
 using FacilityManagement.Data;
 using FacilityManagement.Models;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -8,10 +10,12 @@ namespace FacilityManagement.Controllers
     public class HomeController : Controller
     {
         private readonly FacilityManagementContext _context;
+        private readonly UserManager<ApplicationUser> _userManager;
 
-        public HomeController(FacilityManagementContext context)
+        public HomeController(FacilityManagementContext context, UserManager<ApplicationUser> userManager)
         {
             _context = context;
+            _userManager = userManager;
         }
 
         public async Task<IActionResult> Index()
@@ -29,6 +33,7 @@ namespace FacilityManagement.Controllers
             return View(viewModel);
         }
 
+        [Authorize]
         public async Task<IActionResult> Admin()
         {
             var facilities = await _context.Facilities
