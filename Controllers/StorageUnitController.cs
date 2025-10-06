@@ -60,9 +60,9 @@ namespace FacilityManagement.Controllers
         }
 
         // GET: StorageUnit/Create
-        public IActionResult Create(int? facilityId)
+        public async Task<IActionResult> Create(int? facilityId)
         {
-            ViewBag.Facilities = _context.Facilities.ToList();
+            ViewBag.Facilities = await _context.Facilities.ToListAsync();
             ViewBag.SelectedFacilityId = facilityId;
             return View();
         }
@@ -72,6 +72,19 @@ namespace FacilityManagement.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("UnitNumber,Description,SizeSquareMeters,MonthlyPrice,FacilityId")] StorageUnit storageUnit)
         {
+            // Remove validation errors for navigation properties that we don't bind
+            ModelState.Remove("Facility");
+            ModelState.Remove("Occupant");
+
+            // Debug: Log model state
+            if (!ModelState.IsValid)
+            {
+                foreach (var error in ModelState)
+                {
+                    Console.WriteLine($"Key: {error.Key}, Errors: {string.Join(", ", error.Value.Errors.Select(e => e.ErrorMessage))}");
+                }
+            }
+
             if (ModelState.IsValid)
             {
                 storageUnit.CreatedAt = DateTime.UtcNow;
