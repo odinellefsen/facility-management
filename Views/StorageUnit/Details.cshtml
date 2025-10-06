@@ -1,0 +1,196 @@
+@model FacilityManagement.Models.StorageUnit
+@{
+    ViewData["Title"] = "Storage Unit Details";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2>Storage Unit @Model.UnitNumber</h2>
+    <div>
+        <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-warning">Edit Unit</a>
+        @if (!Model.IsOccupied)
+        {
+            <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#occupyModal">Occupy Unit</button>
+        }
+        else
+        {
+            <form asp-action="Vacate" asp-route-id="@Model.Id" method="post" style="display: inline;">
+                <button type="submit" class="btn btn-success"
+                    onclick="return confirm('Are you sure you want to vacate this unit?')">Vacate Unit</button>
+            </form>
+        }
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header">
+                <h5>Unit Information</h5>
+            </div>
+            <div class="card-body">
+                <dl class="row">
+                    <dt class="col-sm-3">Unit Number:</dt>
+                    <dd class="col-sm-9"><strong>@Model.UnitNumber</strong></dd>
+
+                    <dt class="col-sm-3">Facility:</dt>
+                    <dd class="col-sm-9">
+                        <a asp-controller="Facility" asp-action="Details" asp-route-id="@Model.FacilityId">
+                            @Model.Facility.Name
+                        </a>
+                    </dd>
+
+                    @if (!string.IsNullOrEmpty(Model.Description))
+                    {
+                        <dt class="col-sm-3">Description:</dt>
+                        <dd class="col-sm-9">@Model.Description</dd>
+                    }
+
+                    <dt class="col-sm-3">Size:</dt>
+                    <dd class="col-sm-9">@Model.SizeSquareMeters m²</dd>
+
+                    <dt class="col-sm-3">Monthly Price:</dt>
+                    <dd class="col-sm-9"><strong>$@Model.MonthlyPrice</strong></dd>
+
+                    <dt class="col-sm-3">Status:</dt>
+                    <dd class="col-sm-9">
+                        @if (Model.IsOccupied)
+                        {
+                            <span class="badge bg-warning text-dark fs-6">Occupied</span>
+                        }
+                        else
+                        {
+                            <span class="badge bg-success fs-6">Available</span>
+                        }
+                    </dd>
+
+                    <dt class="col-sm-3">Created:</dt>
+                    <dd class="col-sm-9">@Model.CreatedAt.ToString("MMMM dd, yyyy")</dd>
+                </dl>
+            </div>
+        </div>
+
+        @if (Model.IsOccupied && Model.Occupant != null)
+        {
+            <div class="card mt-4">
+                <div class="card-header">
+                    <h5>Occupancy Information</h5>
+                </div>
+                <div class="card-body">
+                    <dl class="row">
+                        <dt class="col-sm-3">Occupant:</dt>
+                        <dd class="col-sm-9">
+                            <strong>@Model.Occupant.FullName</strong>
+                            <br><small class="text-muted">@Model.Occupant.Email</small>
+                        </dd>
+
+                        <dt class="col-sm-3">Occupied Since:</dt>
+                        <dd class="col-sm-9">@Model.OccupiedAt?.ToString("MMMM dd, yyyy")</dd>
+
+                        <dt class="col-sm-3">Duration:</dt>
+                        <dd class="col-sm-9">
+                            @if (Model.OccupiedAt.HasValue)
+                            {
+                                var duration = DateTime.UtcNow - Model.OccupiedAt.Value;
+                                <span>@duration.Days days</span>
+                            }
+                        </dd>
+                    </dl>
+                </div>
+            </div>
+        }
+    </div>
+
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-header">
+                <h6>Quick Stats</h6>
+            </div>
+            <div class="card-body">
+                <div class="text-center">
+                    <h3 class="@(Model.IsOccupied ? "text-warning" : "text-success")">
+                        @(Model.IsOccupied ? "OCCUPIED" : "AVAILABLE")
+                    </h3>
+                    <hr>
+                    <p><strong>Size:</strong> @Model.SizeSquareMeters m²</p>
+                    <p><strong>Price:</strong> $@Model.MonthlyPrice/month</p>
+                    @if (Model.IsOccupied && Model.OccupiedAt.HasValue)
+                    {
+                        var duration = DateTime.UtcNow - Model.OccupiedAt.Value;
+                        <p><strong>Occupied:</strong> @duration.Days days</p>
+                    }
+                </div>
+            </div>
+        </div>
+
+        <div class="card mt-3">
+            <div class="card-header">
+                <h6>Actions</h6>
+            </div>
+            <div class="card-body">
+                <div class="d-grid gap-2">
+                    <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-outline-warning">Edit Unit</a>
+                    <a asp-controller="Facility" asp-action="Details" asp-route-id="@Model.FacilityId"
+                        class="btn btn-outline-info">View Facility</a>
+                    <a asp-action="Index" asp-route-facilityId="@Model.FacilityId" class="btn btn-outline-secondary">All
+                        Units</a>
+                    <a asp-action="Delete" asp-route-id="@Model.Id" class="btn btn-outline-danger">Delete Unit</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Occupy Unit Modal -->
+@if (!Model.IsOccupied)
+{
+    <div class="modal fade" id="occupyModal" tabindex="-1" aria-labelledby="occupyModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="occupyModalLabel">Occupy Storage Unit</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <form asp-action="Occupy" asp-route-id="@Model.Id" method="post">
+                    <div class="modal-body">
+                        <p>You are about to occupy <strong>Unit @Model.UnitNumber</strong> at
+                            <strong>@Model.Facility.Name</strong>.
+                        </p>
+
+                        @if (User.Identity!.IsAuthenticated)
+                        {
+                            <input type="hidden" name="occupantId"
+                                value="@User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value" />
+                            <div class="alert alert-info">
+                                <strong>Occupant:</strong> @User.Identity.Name<br>
+                                <strong>Monthly Cost:</strong> $@Model.MonthlyPrice
+                            </div>
+                        }
+                        else
+                        {
+                            <div class="alert alert-warning">
+                                You must be logged in to occupy a storage unit.
+                            </div>
+                        }
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                        @if (User.Identity!.IsAuthenticated)
+                        {
+                            <button type="submit" class="btn btn-primary">Occupy Unit</button>
+                        }
+                        else
+                        {
+                            <a asp-controller="Account" asp-action="Login" class="btn btn-primary">Login to Occupy</a>
+                        }
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+}
+
+<div class="mt-4">
+    <a asp-action="Index" asp-route-facilityId="@Model.FacilityId" class="btn btn-secondary">Back to Units</a>
+    <a asp-controller="Facility" asp-action="Details" asp-route-id="@Model.FacilityId" class="btn btn-info">View
+        Facility</a>
+</div>

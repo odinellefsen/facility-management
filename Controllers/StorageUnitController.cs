@@ -80,7 +80,7 @@ namespace FacilityManagement.Controllers
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index), new { facilityId = storageUnit.FacilityId });
             }
-            ViewBag.Facilities = _context.Facilities.ToList();
+            ViewBag.Facilities = await _context.Facilities.ToListAsync();
             return View(storageUnit);
         }
 
@@ -92,12 +92,15 @@ namespace FacilityManagement.Controllers
                 return NotFound();
             }
 
-            var storageUnit = await _context.StorageUnits.FindAsync(id);
+            var storageUnit = await _context.StorageUnits
+                .Include(s => s.Facility)
+                .Include(s => s.Occupant)
+                .FirstOrDefaultAsync(s => s.Id == id);
             if (storageUnit == null)
             {
                 return NotFound();
             }
-            ViewBag.Facilities = _context.Facilities.ToList();
+            ViewBag.Facilities = await _context.Facilities.ToListAsync();
             return View(storageUnit);
         }
 
@@ -131,7 +134,7 @@ namespace FacilityManagement.Controllers
                 }
                 return RedirectToAction(nameof(Index), new { facilityId = storageUnit.FacilityId });
             }
-            ViewBag.Facilities = _context.Facilities.ToList();
+            ViewBag.Facilities = await _context.Facilities.ToListAsync();
             return View(storageUnit);
         }
 
