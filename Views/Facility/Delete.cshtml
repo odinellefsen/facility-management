@@ -1,0 +1,87 @@
+@model FacilityManagement.Models.Facility
+@{
+    ViewData["Title"] = "Delete Facility";
+}
+
+<h2>Delete Facility</h2>
+
+<div class="alert alert-danger">
+    <h4>Are you sure you want to delete this facility?</h4>
+    <p>This action cannot be undone. All storage units associated with this facility will also be deleted.</p>
+</div>
+
+<div class="row">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header">
+                <h5>Facility Details</h5>
+            </div>
+            <div class="card-body">
+                <dl class="row">
+                    <dt class="col-sm-3">Name:</dt>
+                    <dd class="col-sm-9">@Model.Name</dd>
+
+                    <dt class="col-sm-3">Owner:</dt>
+                    <dd class="col-sm-9">@(Model.Owner?.FullName ?? "Unknown") (@(Model.Owner?.Email ?? "N/A"))</dd>
+
+                    @if (!string.IsNullOrEmpty(Model.Description))
+                    {
+                        <dt class="col-sm-3">Description:</dt>
+                        <dd class="col-sm-9">@Model.Description</dd>
+                    }
+
+                    <dt class="col-sm-3">Address:</dt>
+                    <dd class="col-sm-9">
+                        @Model.Address<br>
+                        @if (!string.IsNullOrEmpty(Model.City))
+                        {
+                            <span>@Model.City @Model.PostalCode</span>
+                        
+                            <br>
+                        }
+                        @if (!string.IsNullOrEmpty(Model.Country))
+                        {
+                            <span>@Model.Country</span>
+                        }
+                    </dd>
+
+                    <dt class="col-sm-3">Created:</dt>
+                    <dd class="col-sm-9">@Model.CreatedAt.ToString("MMMM dd, yyyy")</dd>
+
+                    <dt class="col-sm-3">Storage Units:</dt>
+                    <dd class="col-sm-9">@Model.StorageUnits.Count units</dd>
+                </dl>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-header">
+                <h6>Warning</h6>
+            </div>
+            <div class="card-body">
+                <div class="alert alert-warning">
+                    <strong>Impact:</strong>
+                    <ul class="mb-0">
+                        <li>@Model.StorageUnits.Count storage units will be deleted</li>
+                        <li>@Model.StorageUnits.Count(u => u.IsOccupied) occupied units will be vacated</li>
+                        <li>This action is permanent</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="mt-4">
+    <form asp-action="Delete" method="post">
+        <input type="hidden" asp-for="Id" />
+        <button type="submit" class="btn btn-danger"
+            onclick="return confirm('Are you absolutely sure you want to delete this facility? This cannot be undone.')">
+            <i class="fas fa-trash"></i> Delete Facility
+        </button>
+        <a asp-action="Index" class="btn btn-secondary">Cancel</a>
+        <a asp-action="Details" asp-route-id="@Model.Id" class="btn btn-info">View Details</a>
+    </form>
+</div>

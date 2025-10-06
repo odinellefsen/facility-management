@@ -97,12 +97,14 @@ namespace FacilityManagement.Controllers
                 return NotFound();
             }
 
-            var facility = await _context.Facilities.FindAsync(id);
+            var facility = await _context.Facilities
+                .Include(f => f.Owner)
+                .Include(f => f.StorageUnits)
+                .FirstOrDefaultAsync(f => f.Id == id);
             if (facility == null)
             {
                 return NotFound();
             }
-            ViewBag.Users = _context.Users.ToList();
             return View(facility);
         }
 
@@ -136,7 +138,6 @@ namespace FacilityManagement.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
-            ViewBag.Users = _context.Users.ToList();
             return View(facility);
         }
 
