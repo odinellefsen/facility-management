@@ -1,21 +1,22 @@
+using Microsoft.AspNetCore.Identity;
 using System.ComponentModel.DataAnnotations;
 
 namespace FacilityManagement.Models
 {
-    public class User
+    public class ApplicationUser : IdentityUser
     {
-        public int Id { get; set; }
+        [Required]
+        [StringLength(100)]
+        public string FirstName { get; set; } = string.Empty;
 
         [Required]
         [StringLength(100)]
-        public string Name { get; set; } = string.Empty;
-
-        [Required]
-        [EmailAddress]
-        [StringLength(255)]
-        public string Email { get; set; } = string.Empty;
+        public string LastName { get; set; } = string.Empty;
 
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+
+        // Full name property for display
+        public string FullName => $"{FirstName} {LastName}";
 
         // Navigation properties
         public virtual ICollection<Facility> OwnedFacilities { get; set; } = new List<Facility>();

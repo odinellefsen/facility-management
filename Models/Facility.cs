@@ -30,11 +30,11 @@ namespace FacilityManagement.Models
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
         // Foreign key
-        public int OwnerId { get; set; }
+        public string OwnerId { get; set; } = string.Empty;
 
         // Navigation properties
         [ForeignKey("OwnerId")]
-        public virtual User Owner { get; set; } = null!;
+        public virtual ApplicationUser Owner { get; set; } = null!;
 
         public virtual ICollection<StorageUnit> StorageUnits { get; set; } = new List<StorageUnit>();
     }

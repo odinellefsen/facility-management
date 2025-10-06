@@ -14,19 +14,19 @@
         @foreach (var facility in Model)
         {
             var availableUnits = facility.StorageUnits.Where(u => !u.IsOccupied).ToList();
-            
+
             <div class="col-md-6 col-lg-4 mb-4">
                 <div class="card h-100">
                     <div class="card-header">
                         <h5 class="card-title mb-0">@facility.Name</h5>
-                        <small class="text-muted">Owner: @facility.Owner.Name</small>
+                        <small class="text-muted">Owner: @facility.Owner.FullName</small>
                     </div>
                     <div class="card-body">
                         @if (!string.IsNullOrEmpty(facility.Description))
                         {
                             <p class="card-text">@facility.Description</p>
                         }
-                        
+
                         <p class="card-text">
                             <strong>Address:</strong><br>
                             @facility.Address<br>
@@ -35,12 +35,12 @@
                                 <span>@facility.City @facility.PostalCode</span>
                             }
                         </p>
-                        
+
                         <div class="mb-3">
                             <span class="badge bg-success">@availableUnits.Count Available Units</span>
                             <span class="badge bg-secondary">@facility.StorageUnits.Count Total Units</span>
                         </div>
-                        
+
                         @if (availableUnits.Any())
                         {
                             <h6>Available Units:</h6>
@@ -53,16 +53,25 @@
                                                 <strong>Unit @unit.UnitNumber</strong>
                                                 <br><small>@unit.SizeSquareMeters m² - $@unit.MonthlyPrice/month</small>
                                             </div>
-                                            <button class="btn btn-sm btn-primary" onclick="occupyUnit(@unit.Id, '@unit.UnitNumber', '@facility.Name')">
-                                                Occupy
-                                            </button>
+                                            @if (User.Identity!.IsAuthenticated)
+                                            {
+                                                <form asp-controller="StorageUnit" asp-action="Occupy" asp-route-id="@unit.Id" method="post" style="display: inline;">
+                                                    <input type="hidden" name="occupantId" value="@User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value" />
+                                                    <button type="submit" class="btn btn-sm btn-primary">Occupy</button>
+                                                </form>
+                                            }
+                                            else
+                                            {
+                                                <a asp-controller="Account" asp-action="Login" class="btn btn-sm btn-outline-primary">Login to Occupy</a>
+                                            }
                                         </div>
                                     </div>
                                 }
                                 @if (availableUnits.Count > 3)
                                 {
                                     <div class="list-group-item px-0 py-2 text-center">
-                                        <a asp-controller="Facility" asp-action="Details" asp-route-id="@facility.Id" class="btn btn-sm btn-outline-primary">
+                                        <a asp-controller="Facility" asp-action="Details" asp-route-id="@facility.Id"
+                                            class="btn btn-sm btn-outline-primary">
                                             View All @availableUnits.Count Units
                                         </a>
                                     </div>
@@ -75,7 +84,8 @@
                         }
                     </div>
                     <div class="card-footer">
-                        <a asp-controller="Facility" asp-action="Details" asp-route-id="@facility.Id" class="btn btn-outline-info btn-sm">
+                        <a asp-controller="Facility" asp-action="Details" asp-route-id="@facility.Id"
+                            class="btn btn-outline-info btn-sm">
                             View Details
                         </a>
                     </div>
@@ -106,7 +116,7 @@
             <form id="occupyForm" method="post">
                 <div class="modal-body">
                     <p>You are about to occupy <strong id="unitInfo"></strong>.</p>
-                    
+
                     <div class="mb-3">
                         <label for="occupantSelect" class="form-label">Select User:</label>
                         <select class="form-select" id="occupantSelect" name="occupantId" required>
@@ -114,9 +124,10 @@
                             <!-- Users will be loaded dynamically -->
                         </select>
                     </div>
-                    
+
                     <div class="alert alert-info">
-                        <small>If you don't see your name in the list, please <a asp-controller="User" asp-action="Create" target="_blank">register as a new user</a> first.</small>
+                        <small>If you don't see your name in the list, please <a asp-controller="User"
+                                asp-action="Create" target="_blank">register as a new user</a> first.</small>
                     </div>
                 </div>
                 <div class="modal-footer">
@@ -131,19 +142,19 @@
 @section Scripts {
     <script>
         let currentUnitId = null;
-        
+
         function occupyUnit(unitId, unitNumber, facilityName) {
             currentUnitId = unitId;
             document.getElementById('unitInfo').textContent = `Unit ${unitNumber} at ${facilityName}`;
             document.getElementById('occupyForm').action = `/StorageUnit/Occupy/${unitId}`;
-            
+
             // Load users for the dropdown
             loadUsers();
-            
+
             // Show modal
             new bootstrap.Modal(document.getElementById('occupyModal')).show();
         }
-        
+
         function loadUsers() {
             // In a real application, you would fetch this from an API endpoint
             // For now, we'll use a simple approach
@@ -153,7 +164,7 @@
                     // This is a simplified approach - in production you'd want a proper API endpoint
                     const select = document.getElementById('occupantSelect');
                     select.innerHTML = '<option value="">Choose a user...</option>';
-                    
+
                     // You would populate this with actual user data from an API
                     // For demonstration, we'll add a note
                     select.innerHTML += '<option value="" disabled>Please create users first via Admin panel</option>';

@@ -1,10 +1,11 @@
 using FacilityManagement.Models;
+using Microsoft.AspNetCore.Identity;
 
 namespace FacilityManagement.Data
 {
     public static class SeedData
     {
-        public static void Initialize(FacilityManagementContext context)
+        public static async Task InitializeAsync(FacilityManagementContext context, UserManager<ApplicationUser> userManager)
         {
             // Check if data already exists
             if (context.Users.Any())
@@ -15,34 +16,51 @@ namespace FacilityManagement.Data
             // Create sample users
             var users = new[]
             {
-                new User
+                new ApplicationUser
                 {
-                    Name = "John Smith",
+                    UserName = "john.smith@email.com",
                     Email = "john.smith@email.com",
-                    CreatedAt = DateTime.UtcNow.AddDays(-30)
+                    FirstName = "John",
+                    LastName = "Smith",
+                    CreatedAt = DateTime.UtcNow.AddDays(-30),
+                    EmailConfirmed = true
                 },
-                new User
+                new ApplicationUser
                 {
-                    Name = "Sarah Johnson",
+                    UserName = "sarah.johnson@email.com",
                     Email = "sarah.johnson@email.com",
-                    CreatedAt = DateTime.UtcNow.AddDays(-25)
+                    FirstName = "Sarah",
+                    LastName = "Johnson",
+                    CreatedAt = DateTime.UtcNow.AddDays(-25),
+                    EmailConfirmed = true
                 },
-                new User
+                new ApplicationUser
                 {
-                    Name = "Mike Wilson",
+                    UserName = "mike.wilson@email.com",
                     Email = "mike.wilson@email.com",
-                    CreatedAt = DateTime.UtcNow.AddDays(-20)
+                    FirstName = "Mike",
+                    LastName = "Wilson",
+                    CreatedAt = DateTime.UtcNow.AddDays(-20),
+                    EmailConfirmed = true
                 },
-                new User
+                new ApplicationUser
                 {
-                    Name = "Emma Davis",
+                    UserName = "emma.davis@email.com",
                     Email = "emma.davis@email.com",
-                    CreatedAt = DateTime.UtcNow.AddDays(-15)
+                    FirstName = "Emma",
+                    LastName = "Davis",
+                    CreatedAt = DateTime.UtcNow.AddDays(-15),
+                    EmailConfirmed = true
                 }
             };
 
-            context.Users.AddRange(users);
-            context.SaveChanges();
+            foreach (var user in users)
+            {
+                await userManager.CreateAsync(user, "Password123!");
+            }
+
+            // Get the created users from the database
+            var createdUsers = context.Users.ToArray();
 
             // Create sample facilities
             var facilities = new[]
@@ -55,7 +73,7 @@ namespace FacilityManagement.Data
                     City = "New York",
                     PostalCode = "10001",
                     Country = "USA",
-                    OwnerId = users[0].Id,
+                    OwnerId = createdUsers[0].Id,
                     CreatedAt = DateTime.UtcNow.AddDays(-20)
                 },
                 new Facility
@@ -66,7 +84,7 @@ namespace FacilityManagement.Data
                     City = "Brooklyn",
                     PostalCode = "11201",
                     Country = "USA",
-                    OwnerId = users[1].Id,
+                    OwnerId = createdUsers[1].Id,
                     CreatedAt = DateTime.UtcNow.AddDays(-15)
                 },
                 new Facility
@@ -77,7 +95,7 @@ namespace FacilityManagement.Data
                     City = "Queens",
                     PostalCode = "11101",
                     Country = "USA",
-                    OwnerId = users[0].Id,
+                    OwnerId = createdUsers[0].Id,
                     CreatedAt = DateTime.UtcNow.AddDays(-10)
                 }
             };
@@ -99,7 +117,7 @@ namespace FacilityManagement.Data
                     MonthlyPrice = 50 + (i * 10),
                     FacilityId = facilities[0].Id,
                     IsOccupied = i <= 6, // First 6 units are occupied
-                    OccupantId = i <= 6 ? users[(i - 1) % users.Length].Id : null,
+                    OccupantId = i <= 6 ? createdUsers[(i - 1) % createdUsers.Length].Id : null,
                     OccupiedAt = i <= 6 ? DateTime.UtcNow.AddDays(-i * 2) : null,
                     CreatedAt = DateTime.UtcNow.AddDays(-15)
                 });
@@ -116,7 +134,7 @@ namespace FacilityManagement.Data
                     MonthlyPrice = 80 + (i * 15),
                     FacilityId = facilities[1].Id,
                     IsOccupied = i <= 3, // First 3 units are occupied
-                    OccupantId = i <= 3 ? users[(i - 1) % users.Length].Id : null,
+                    OccupantId = i <= 3 ? createdUsers[(i - 1) % createdUsers.Length].Id : null,
                     OccupiedAt = i <= 3 ? DateTime.UtcNow.AddDays(-i * 3) : null,
                     CreatedAt = DateTime.UtcNow.AddDays(-12)
                 });
@@ -133,7 +151,7 @@ namespace FacilityManagement.Data
                     MonthlyPrice = 150 + (i * 25),
                     FacilityId = facilities[2].Id,
                     IsOccupied = i <= 2, // First 2 units are occupied
-                    OccupantId = i <= 2 ? users[(i - 1) % users.Length].Id : null,
+                    OccupantId = i <= 2 ? createdUsers[(i - 1) % createdUsers.Length].Id : null,
                     OccupiedAt = i <= 2 ? DateTime.UtcNow.AddDays(-i * 4) : null,
                     CreatedAt = DateTime.UtcNow.AddDays(-8)
                 });

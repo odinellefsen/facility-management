@@ -29,13 +29,13 @@ namespace FacilityManagement.Models
 
         // Foreign keys
         public int FacilityId { get; set; }
-        public int? OccupantId { get; set; }
+        public string? OccupantId { get; set; }
 
         // Navigation properties
         [ForeignKey("FacilityId")]
         public virtual Facility Facility { get; set; } = null!;
 
         [ForeignKey("OccupantId")]
-        public virtual User? Occupant { get; set; }
+        public virtual ApplicationUser? Occupant { get; set; }
     }
 }

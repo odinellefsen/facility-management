@@ -9,9 +9,9 @@
     <div class="col-md-8">
         <div class="card">
             <div class="card-body">
-                <form asp-action="Create">
-                    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-                    
+                <form asp-action="Create" method="post">
+                    <div asp-validation-summary="All" class="text-danger"></div>
+
                     <div class="row">
                         <div class="col-md-6">
                             <div class="mb-3">
@@ -25,28 +25,30 @@
                                 <label asp-for="OwnerId" class="form-label">Owner</label>
                                 <select asp-for="OwnerId" class="form-select">
                                     <option value="">Select Owner</option>
-                                    @foreach (var user in ViewBag.Users as List<FacilityManagement.Models.User>)
+                                    @foreach (var user in ViewBag.Users as
+                                                                        List<FacilityManagement.Models.ApplicationUser>)
                                     {
-                                        <option value="@user.Id">@user.Name (@user.Email)</option>
+                                        <option value="@user.Id" selected="@(user.Id == ViewBag.CurrentUserId)">
+                                            @user.FullName (@user.Email)</option>
                                     }
                                 </select>
                                 <span asp-validation-for="OwnerId" class="text-danger"></span>
                             </div>
                         </div>
                     </div>
-                    
+
                     <div class="mb-3">
                         <label asp-for="Description" class="form-label"></label>
                         <textarea asp-for="Description" class="form-control" rows="3"></textarea>
                         <span asp-validation-for="Description" class="text-danger"></span>
                     </div>
-                    
+
                     <div class="mb-3">
                         <label asp-for="Address" class="form-label"></label>
                         <input asp-for="Address" class="form-control" />
                         <span asp-validation-for="Address" class="text-danger"></span>
                     </div>
-                    
+
                     <div class="row">
                         <div class="col-md-4">
                             <div class="mb-3">
@@ -70,7 +72,7 @@
                             </div>
                         </div>
                     </div>
-                    
+
                     <div class="mb-3">
                         <button type="submit" class="btn btn-primary">Create Facility</button>
                         <a asp-action="Index" class="btn btn-secondary">Back to List</a>
@@ -82,5 +84,7 @@
 </div>
 
 @section Scripts {
-    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
 }

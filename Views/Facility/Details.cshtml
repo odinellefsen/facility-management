@@ -23,7 +23,7 @@
                     <dd class="col-sm-8">@Model.Name</dd>
                     
                     <dt class="col-sm-4">Owner:</dt>
-                    <dd class="col-sm-8">@Model.Owner.Name (@Model.Owner.Email)</dd>
+                    <dd class="col-sm-8">@Model.Owner.FullName (@Model.Owner.Email)</dd>
                     
                     @if (!string.IsNullOrEmpty(Model.Description))
                     {
@@ -135,7 +135,7 @@
                                         <td>
                                             @if (unit.Occupant != null)
                                             {
-                                                <span>@unit.Occupant.Name</span>
+                                                <span>@unit.Occupant.FullName</span>
                                                 <br><small class="text-muted">Since @unit.OccupiedAt?.ToString("MMM dd, yyyy")</small>
                                             }
                                             else
