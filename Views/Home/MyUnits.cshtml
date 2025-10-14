@@ -1,0 +1,95 @@
+@model IEnumerable<FacilityManagement.Models.StorageUnit>
+@{
+    ViewData["Title"] = "My Occupied Units";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2>My Occupied Storage Units</h2>
+    <a asp-action="Browse" class="btn btn-primary">Browse Available Units</a>
+</div>
+
+@if (Model.Any())
+{
+    <div class="row">
+        @foreach (var unit in Model)
+        {
+            <div class="col-md-6 col-lg-4 mb-4">
+                <div class="card">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h6 class="mb-0">Unit @unit.UnitNumber</h6>
+
+                    </div>
+                    <div class="card-body">
+                        <h6 class="card-title">@unit.Facility.Name</h6>
+                        <p class="card-text text-muted">
+                            <i class="fas fa-map-marker-alt"></i> @unit.Facility.Address
+                            @if (!string.IsNullOrEmpty(unit.Facility.City))
+                            {
+                                <br />
+                                @unit.Facility.City
+                                @if (!string.IsNullOrEmpty(unit.Facility.PostalCode))
+                                {
+                                    <span>, @unit.Facility.PostalCode</span>
+                                }
+                            }
+                        </p>
+
+                        @if (!string.IsNullOrEmpty(unit.Description))
+                        {
+                            <p class="card-text"><small>@unit.Description</small></p>
+                        }
+
+                        <div class="row text-center">
+                            <div class="col-6">
+                                <strong>@unit.SizeSquareMeters m²</strong>
+                                <br><small class="text-muted">Size</small>
+                            </div>
+                            <div class="col-6">
+                                <strong>$@unit.MonthlyPrice</strong>
+                                <br><small class="text-muted">Monthly</small>
+                            </div>
+                        </div>
+
+                        @if (unit.OccupiedAt.HasValue)
+                        {
+                            <hr>
+                            <p class="card-text">
+                                <small class="text-muted">
+                                    <i class="fas fa-calendar"></i> Occupied since: @unit.OccupiedAt.Value.ToString("MMMM dd, yyyy")
+                                </small>
+                            </p>
+                        }
+
+                        <p class="card-text">
+                            <small class="text-muted">
+                                <i class="fas fa-user"></i> Facility Owner: @unit.Facility.Owner?.FullName
+                            </small>
+                        </p>
+                    </div>
+                    <div class="card-footer">
+                        <form asp-controller="StorageUnit" asp-action="Vacate" asp-route-id="@unit.Id" method="post"
+                            style="display: inline;">
+                            <button type="submit" class="btn btn-sm btn-outline-danger"
+                                onclick="return confirm('Are you sure you want to vacate this storage unit?')">
+                                Vacate Unit
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+}
+else
+{
+    <div class="text-center py-5">
+        <div class="card">
+            <div class="card-body">
+                <i class="fas fa-warehouse fa-3x text-muted mb-3"></i>
+                <h4>No Occupied Units</h4>
+                <p class="text-muted">You haven't occupied any storage units yet.</p>
+                <a asp-action="Browse" class="btn btn-primary">Browse Available Units</a>
+            </div>
+        </div>
+    </div>
+}

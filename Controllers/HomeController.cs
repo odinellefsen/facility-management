@@ -60,5 +60,25 @@ namespace FacilityManagement.Controllers
 
             return View(facilities);
         }
+
+        [Authorize]
+        public async Task<IActionResult> MyUnits()
+        {
+            var currentUser = await _userManager.GetUserAsync(User);
+            if (currentUser == null)
+            {
+                return Challenge();
+            }
+
+            var occupiedUnits = await _context.StorageUnits
+                .Include(su => su.Facility)
+                    .ThenInclude(f => f.Owner)
+                .Where(su => su.OccupantId == currentUser.Id)
+                .OrderBy(su => su.Facility.Name)
+                .ThenBy(su => su.UnitNumber)
+                .ToListAsync();
+
+            return View(occupiedUnits);
+        }
     }
 }
