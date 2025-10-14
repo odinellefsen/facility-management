@@ -13,28 +13,26 @@
                     <div asp-validation-summary="ModelOnly" class="text-danger"></div>
                     @Html.AntiForgeryToken()
 
-                    <div class="mb-3">
-                        <label asp-for="FacilityId" class="form-label">Facility</label>
-                        <select asp-for="FacilityId" class="form-select">
-                            @if (ViewBag.SelectedFacilityId != null)
-                            {
-                                @foreach (var facility in ViewBag.Facilities as List<FacilityManagement.Models.Facility>)
-                                {
-                                    <option value="@facility.Id" selected="@(facility.Id == (int)ViewBag.SelectedFacilityId)">
-                                        @facility.Name</option>
-                                }
-                            }
-                            else
-                            {
-                                <option value="">Select Facility</option>
-                                @foreach (var facility in ViewBag.Facilities as List<FacilityManagement.Models.Facility>)
-                                {
-                                    <option value="@facility.Id">@facility.Name</option>
-                                }
-                            }
-                        </select>
-                        <span asp-validation-for="FacilityId" class="text-danger"></span>
-                    </div>
+                    @if (ViewBag.SelectedFacilityId != null)
+                    {
+                        <!-- Hidden field for facility ID when coming from a specific facility -->
+                        <input type="hidden" asp-for="FacilityId" value="@ViewBag.SelectedFacilityId" />
+                        <div class="mb-3">
+                            <label class="form-label">Facility</label>
+                            <input type="text" class="form-control" value="@ViewBag.FacilityName" readonly />
+                            <small class="form-text text-muted">Creating storage unit for this facility</small>
+                        </div>
+                    }
+                    else
+                    {
+                        <!-- This shouldn't happen if we only allow creation from facility pages -->
+                        <div class="alert alert-warning">
+                            <strong>Error:</strong> Storage units can only be created from a facility page.
+                            <a asp-controller="Facility" asp-action="Index" class="btn btn-sm btn-primary ms-2">Go to
+                                Facilities</a>
+                        </div>
+                        <input type="hidden" asp-for="FacilityId" value="" />
+                    }
 
                     <div class="mb-3">
                         <label asp-for="UnitNumber" class="form-label"></label>
@@ -62,7 +60,15 @@
 
                     <div class="mb-3">
                         <button type="submit" class="btn btn-primary">Create Storage Unit</button>
-                        <a asp-action="Index" class="btn btn-secondary">Back to List</a>
+                        @if (ViewBag.SelectedFacilityId != null)
+                        {
+                            <a asp-controller="Facility" asp-action="Details" asp-route-id="@ViewBag.SelectedFacilityId"
+                                class="btn btn-secondary">Back to Facility</a>
+                        }
+                        else
+                        {
+                            <a asp-controller="Facility" asp-action="Index" class="btn btn-secondary">Back to Facilities</a>
+                        }
                     </div>
                 </form>
             </div>

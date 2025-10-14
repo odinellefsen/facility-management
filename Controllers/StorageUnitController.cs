@@ -69,8 +69,27 @@ namespace FacilityManagement.Controllers
         // GET: StorageUnit/Create
         public async Task<IActionResult> Create(int? facilityId)
         {
-            ViewBag.Facilities = await _context.Facilities.ToListAsync();
-            ViewBag.SelectedFacilityId = facilityId;
+            if (facilityId.HasValue)
+            {
+                var currentUser = await _userManager.GetUserAsync(User);
+                if (currentUser == null)
+                {
+                    return Challenge();
+                }
+
+                var facility = await _context.Facilities
+                    .Where(f => f.Id == facilityId.Value && f.OwnerId == currentUser.Id)
+                    .FirstOrDefaultAsync();
+
+                if (facility == null)
+                {
+                    return NotFound("Facility not found or you don't have permission to add storage units to it.");
+                }
+
+                ViewBag.SelectedFacilityId = facilityId;
+                ViewBag.FacilityName = facility.Name;
+            }
+
             return View();
         }
 
@@ -98,9 +117,19 @@ namespace FacilityManagement.Controllers
                 storageUnit.IsOccupied = false;
                 _context.Add(storageUnit);
                 await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index), new { facilityId = storageUnit.FacilityId });
+                return RedirectToAction("Details", "Facility", new { id = storageUnit.FacilityId });
             }
-            ViewBag.Facilities = await _context.Facilities.ToListAsync();
+
+            // Reload facility information for the view in case of validation errors
+            if (storageUnit.FacilityId > 0)
+            {
+                var facility = await _context.Facilities.FindAsync(storageUnit.FacilityId);
+                if (facility != null)
+                {
+                    ViewBag.SelectedFacilityId = storageUnit.FacilityId;
+                    ViewBag.FacilityName = facility.Name;
+                }
+            }
             return View(storageUnit);
         }
 
