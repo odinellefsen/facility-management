@@ -7,7 +7,6 @@
     <h2>Admin Dashboard</h2>
     <div>
         <a asp-controller="Facility" asp-action="Create" class="btn btn-primary">Create New Facility</a>
-        <a asp-controller="User" asp-action="Create" class="btn btn-success">Add New User</a>
     </div>
 </div>
 
@@ -109,22 +108,10 @@
             </div>
             <div class="card-body">
                 <div class="d-grid gap-2">
-                    <a asp-controller="User" asp-action="Index" class="btn btn-outline-primary">Manage Users</a>
                     <a asp-controller="StorageUnit" asp-action="Index" class="btn btn-outline-secondary">All Storage
                         Units</a>
                     <a asp-controller="Facility" asp-action="Index" class="btn btn-outline-info">All Facilities</a>
                 </div>
-            </div>
-        </div>
-    </div>
-
-    <div class="col-md-8">
-        <div class="card">
-            <div class="card-header">
-                <h6>Recent Activity</h6>
-            </div>
-            <div class="card-body">
-                <p class="text-muted">Activity tracking will be implemented in future updates.</p>
             </div>
         </div>
     </div>
