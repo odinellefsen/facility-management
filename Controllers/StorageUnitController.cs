@@ -114,15 +114,22 @@ namespace FacilityManagement.Controllers
                 return NotFound();
             }
 
+            var currentUser = await _userManager.GetUserAsync(User);
+            if (currentUser == null)
+            {
+                return Challenge();
+            }
+
             var storageUnit = await _context.StorageUnits
                 .Include(s => s.Facility)
                 .Include(s => s.Occupant)
-                .FirstOrDefaultAsync(s => s.Id == id);
+                .FirstOrDefaultAsync(s => s.Id == id && s.Facility.OwnerId == currentUser.Id);
+
             if (storageUnit == null)
             {
-                return NotFound();
+                return NotFound("Storage unit not found or you don't have permission to edit it.");
             }
-            ViewBag.Facilities = await _context.Facilities.ToListAsync();
+
             return View(storageUnit);
         }
 
@@ -136,12 +143,40 @@ namespace FacilityManagement.Controllers
                 return NotFound();
             }
 
+            var currentUser = await _userManager.GetUserAsync(User);
+            if (currentUser == null)
+            {
+                return Challenge();
+            }
+
+            // Remove validation for navigation properties
+            ModelState.Remove("Facility");
+            ModelState.Remove("Occupant");
+
             if (ModelState.IsValid)
             {
                 try
                 {
-                    _context.Update(storageUnit);
+                    // Get the existing unit to verify ownership and preserve critical data
+                    var existingUnit = await _context.StorageUnits
+                        .Include(s => s.Facility)
+                        .FirstOrDefaultAsync(s => s.Id == id && s.Facility.OwnerId == currentUser.Id);
+
+                    if (existingUnit == null)
+                    {
+                        return NotFound("Storage unit not found or you don't have permission to edit it.");
+                    }
+
+                    // Update only the editable fields on the tracked entity
+                    existingUnit.UnitNumber = storageUnit.UnitNumber;
+                    existingUnit.Description = storageUnit.Description;
+                    existingUnit.SizeSquareMeters = storageUnit.SizeSquareMeters;
+                    existingUnit.MonthlyPrice = storageUnit.MonthlyPrice;
+
+                    // Save changes (existingUnit is already tracked)
                     await _context.SaveChangesAsync();
+
+                    return RedirectToAction("Details", "Facility", new { id = existingUnit.FacilityId });
                 }
                 catch (DbUpdateConcurrencyException)
                 {
@@ -154,10 +189,15 @@ namespace FacilityManagement.Controllers
                         throw;
                     }
                 }
-                return RedirectToAction(nameof(Index), new { facilityId = storageUnit.FacilityId });
             }
-            ViewBag.Facilities = await _context.Facilities.ToListAsync();
-            return View(storageUnit);
+
+            // If we get here, validation failed - reload the storage unit with includes for the view
+            var reloadedUnit = await _context.StorageUnits
+                .Include(s => s.Facility)
+                .Include(s => s.Occupant)
+                .FirstOrDefaultAsync(s => s.Id == id);
+
+            return View(reloadedUnit ?? storageUnit);
         }
 
         // POST: StorageUnit/Occupy/5

@@ -16,6 +16,7 @@
                     <input type="hidden" asp-for="IsOccupied" />
                     <input type="hidden" asp-for="OccupiedAt" />
                     <input type="hidden" asp-for="OccupantId" />
+                    <input type="hidden" asp-for="FacilityId" />
 
                     <div class="row">
                         <div class="col-md-6">
@@ -23,20 +24,6 @@
                                 <label asp-for="UnitNumber" class="form-label"></label>
                                 <input asp-for="UnitNumber" class="form-control" />
                                 <span asp-validation-for="UnitNumber" class="text-danger"></span>
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            <div class="mb-3">
-                                <label asp-for="FacilityId" class="form-label">Facility</label>
-                                <select asp-for="FacilityId" class="form-select">
-                                    @foreach (var facility in ViewBag.Facilities as
-                                                                        List<FacilityManagement.Models.Facility>)
-                                    {
-                                        <option value="@facility.Id" selected="@(facility.Id == Model.FacilityId)">
-                                            @facility.Name</option>
-                                    }
-                                </select>
-                                <span asp-validation-for="FacilityId" class="text-danger"></span>
                             </div>
                         </div>
                     </div>
@@ -67,8 +54,9 @@
                     <div class="mb-3">
                         <button type="submit" class="btn btn-primary">Update Storage Unit</button>
                         <a asp-action="Details" asp-route-id="@Model.Id" class="btn btn-secondary">Cancel</a>
-                        <a asp-action="Index" asp-route-facilityId="@Model.FacilityId" class="btn btn-outline-info">Back
-                            to Units</a>
+                        <a asp-controller="Facility" asp-action="Details" asp-route-id="@Model.FacilityId"
+                            class="btn btn-outline-info">Back
+                            to Facility</a>
                     </div>
                 </form>
             </div>
