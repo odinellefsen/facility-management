@@ -85,15 +85,6 @@
 
                         <dt class="col-sm-3">Occupied Since:</dt>
                         <dd class="col-sm-9">@Model.OccupiedAt?.ToString("MMMM dd, yyyy")</dd>
-
-                        <dt class="col-sm-3">Duration:</dt>
-                        <dd class="col-sm-9">
-                            @if (Model.OccupiedAt.HasValue)
-                            {
-                                var duration = DateTime.UtcNow - Model.OccupiedAt.Value;
-                                <span>@duration.Days days</span>
-                            }
-                        </dd>
                     </dl>
                 </div>
             </div>

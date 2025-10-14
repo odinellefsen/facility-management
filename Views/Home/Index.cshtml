@@ -94,26 +94,4 @@
             </div>
         </div>
     </div>
-
-    <div class="col-md-6">
-        <div class="card">
-            <div class="card-header">
-                <h5>Quick Actions</h5>
-            </div>
-            <div class="card-body">
-                <a href="@Url.Action("Browse", "Home")" class="btn btn-primary btn-block mb-2">Browse Available
-                    Units</a>
-                @if (User.Identity!.IsAuthenticated)
-                {
-                    <a href="@Url.Action("Admin", "Home")" class="btn btn-secondary btn-block mb-2">Admin Dashboard</a>
-                    <a href="@Url.Action("Create", "Facility")" class="btn btn-success btn-block mb-2">Create New
-                        Facility</a>
-                }
-                else
-                {
-                    <a href="@Url.Action("Login", "Account")" class="btn btn-info btn-block mb-2">Login</a>
-                }
-            </div>
-        </div>
-    </div>
 </div>
