@@ -6,7 +6,6 @@
 <div class="d-flex justify-content-between align-items-center mb-4">
     <h2>Storage Unit @Model.UnitNumber</h2>
     <div>
-        <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-warning">Edit Unit</a>
         @if (!Model.IsOccupied)
         {
             <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#occupyModal">Occupy Unit</button>
