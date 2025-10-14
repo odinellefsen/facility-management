@@ -103,8 +103,17 @@
             <div class="card-body">
                 <a href="@Url.Action("Browse", "Home")" class="btn btn-primary btn-block mb-2">Browse Available
                     Units</a>
-                <a href="@Url.Action("Admin", "Home")" class="btn btn-secondary btn-block mb-2">Admin Dashboard</a>
-                <a href="@Url.Action("Create", "User")" class="btn btn-success btn-block mb-2">Register New User</a>
+                @if (User.Identity!.IsAuthenticated)
+                {
+                    <a href="@Url.Action("Admin", "Home")" class="btn btn-secondary btn-block mb-2">Admin Dashboard</a>
+                    <a href="@Url.Action("Create", "Facility")" class="btn btn-success btn-block mb-2">Create New
+                        Facility</a>
+                }
+                else
+                {
+                    <a href="@Url.Action("Register", "Account")" class="btn btn-success btn-block mb-2">Register Account</a>
+                    <a href="@Url.Action("Login", "Account")" class="btn btn-info btn-block mb-2">Login</a>
+                }
             </div>
         </div>
     </div>

@@ -12,15 +12,27 @@
         }
     </div>
     <div>
-        @if (ViewBag.FacilityId != null)
+        @if (User.Identity!.IsAuthenticated)
         {
-            <a asp-action="Create" asp-route-facilityId="@ViewBag.FacilityId" class="btn btn-success">Add Storage Unit</a>
-            <a asp-controller="Facility" asp-action="Details" asp-route-id="@ViewBag.FacilityId"
-                class="btn btn-outline-info">Back to Facility</a>
+            @if (ViewBag.FacilityId != null)
+            {
+                <a asp-action="Create" asp-route-facilityId="@ViewBag.FacilityId" class="btn btn-success">Add Storage Unit</a>
+                <a asp-controller="Facility" asp-action="Details" asp-route-id="@ViewBag.FacilityId"
+                    class="btn btn-outline-info">Back to Facility</a>
+            }
+            else
+            {
+                <a asp-action="Create" class="btn btn-success">Add Storage Unit</a>
+            }
         }
         else
         {
-            <a asp-action="Create" class="btn btn-success">Add Storage Unit</a>
+            <a asp-controller="Account" asp-action="Login" class="btn btn-outline-success">Login to Add Storage Unit</a>
+            @if (ViewBag.FacilityId != null)
+            {
+                <a asp-controller="Facility" asp-action="Details" asp-route-id="@ViewBag.FacilityId"
+                    class="btn btn-outline-info">Back to Facility</a>
+            }
         }
     </div>
 </div>
@@ -100,18 +112,21 @@
                                     <div class="btn-group" role="group">
                                         <a asp-action="Details" asp-route-id="@unit.Id"
                                             class="btn btn-sm btn-outline-info">Details</a>
-                                        <a asp-action="Edit" asp-route-id="@unit.Id"
-                                            class="btn btn-sm btn-outline-warning">Edit</a>
-                                        @if (unit.IsOccupied)
+                                        @if (User.Identity!.IsAuthenticated)
                                         {
-                                            <form asp-action="Vacate" asp-route-id="@unit.Id" method="post"
-                                                style="display: inline;">
-                                                <button type="submit" class="btn btn-sm btn-outline-success"
-                                                    onclick="return confirm('Vacate this unit?')">Vacate</button>
-                                            </form>
+                                            <a asp-action="Edit" asp-route-id="@unit.Id"
+                                                class="btn btn-sm btn-outline-warning">Edit</a>
+                                            @if (unit.IsOccupied)
+                                            {
+                                                <form asp-action="Vacate" asp-route-id="@unit.Id" method="post"
+                                                    style="display: inline;">
+                                                    <button type="submit" class="btn btn-sm btn-outline-success"
+                                                        onclick="return confirm('Vacate this unit?')">Vacate</button>
+                                                </form>
+                                            }
+                                            <a asp-action="Delete" asp-route-id="@unit.Id"
+                                                class="btn btn-sm btn-outline-danger">Delete</a>
                                         }
-                                        <a asp-action="Delete" asp-route-id="@unit.Id"
-                                            class="btn btn-sm btn-outline-danger">Delete</a>
                                     </div>
                                 </td>
                             </tr>
@@ -124,14 +139,20 @@
         {
             <div class="text-center py-4">
                 <p class="text-muted">No storage units found.</p>
-                @if (ViewBag.FacilityId != null)
+                @if (User.Identity!.IsAuthenticated)
                 {
-                    <a asp-action="Create" asp-route-facilityId="@ViewBag.FacilityId" class="btn btn-success">Add First Storage
-                        Unit</a>
+                    @if (ViewBag.FacilityId != null)
+                    {
+                        <a asp-action="Create" asp-route-facilityId="@ViewBag.FacilityId" class="btn btn-success">Add First Storage Unit</a>
+                    }
+                    else
+                    {
+                        <a asp-action="Create" class="btn btn-success">Add First Storage Unit</a>
+                    }
                 }
                 else
                 {
-                    <a asp-action="Create" class="btn btn-success">Add First Storage Unit</a>
+                    <a asp-controller="Account" asp-action="Login" class="btn btn-outline-success">Login to Add Storage Units</a>
                 }
             </div>
         }
