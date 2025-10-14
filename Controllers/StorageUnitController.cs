@@ -22,15 +22,22 @@ namespace FacilityManagement.Controllers
         // GET: StorageUnit
         public async Task<IActionResult> Index(int? facilityId)
         {
+            var currentUser = await _userManager.GetUserAsync(User);
+            if (currentUser == null)
+            {
+                return Challenge();
+            }
+
             IQueryable<StorageUnit> storageUnits = _context.StorageUnits
                 .Include(s => s.Facility)
-                .Include(s => s.Occupant);
+                .Include(s => s.Occupant)
+                .Where(s => s.Facility.OwnerId == currentUser.Id); // Only show units from user's facilities
 
             if (facilityId.HasValue)
             {
                 storageUnits = storageUnits.Where(s => s.FacilityId == facilityId.Value);
                 ViewBag.FacilityName = await _context.Facilities
-                    .Where(f => f.Id == facilityId.Value)
+                    .Where(f => f.Id == facilityId.Value && f.OwnerId == currentUser.Id) // Ensure user owns the facility
                     .Select(f => f.Name)
                     .FirstOrDefaultAsync();
                 ViewBag.FacilityId = facilityId.Value;

@@ -36,9 +36,16 @@ namespace FacilityManagement.Controllers
         [Authorize]
         public async Task<IActionResult> Admin()
         {
+            var currentUser = await _userManager.GetUserAsync(User);
+            if (currentUser == null)
+            {
+                return Challenge();
+            }
+
             var facilities = await _context.Facilities
                 .Include(f => f.Owner)
                 .Include(f => f.StorageUnits)
+                .Where(f => f.OwnerId == currentUser.Id)
                 .ToListAsync();
 
             return View(facilities);

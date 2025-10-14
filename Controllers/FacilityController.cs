@@ -22,9 +22,16 @@ namespace FacilityManagement.Controllers
         // GET: Facility
         public async Task<IActionResult> Index()
         {
+            var currentUser = await _userManager.GetUserAsync(User);
+            if (currentUser == null)
+            {
+                return Challenge();
+            }
+
             var facilities = await _context.Facilities
                 .Include(f => f.Owner)
                 .Include(f => f.StorageUnits)
+                .Where(f => f.OwnerId == currentUser.Id)
                 .ToListAsync();
             return View(facilities);
         }
@@ -37,11 +44,17 @@ namespace FacilityManagement.Controllers
                 return NotFound();
             }
 
+            var currentUser = await _userManager.GetUserAsync(User);
+            if (currentUser == null)
+            {
+                return Challenge();
+            }
+
             var facility = await _context.Facilities
                 .Include(f => f.Owner)
                 .Include(f => f.StorageUnits)
                     .ThenInclude(su => su.Occupant)
-                .FirstOrDefaultAsync(m => m.Id == id);
+                .FirstOrDefaultAsync(m => m.Id == id && m.OwnerId == currentUser.Id);
 
             if (facility == null)
             {
@@ -97,10 +110,16 @@ namespace FacilityManagement.Controllers
                 return NotFound();
             }
 
+            var currentUser = await _userManager.GetUserAsync(User);
+            if (currentUser == null)
+            {
+                return Challenge();
+            }
+
             var facility = await _context.Facilities
                 .Include(f => f.Owner)
                 .Include(f => f.StorageUnits)
-                .FirstOrDefaultAsync(f => f.Id == id);
+                .FirstOrDefaultAsync(f => f.Id == id && f.OwnerId == currentUser.Id);
             if (facility == null)
             {
                 return NotFound();
@@ -149,9 +168,16 @@ namespace FacilityManagement.Controllers
                 return NotFound();
             }
 
+            var currentUser = await _userManager.GetUserAsync(User);
+            if (currentUser == null)
+            {
+                return Challenge();
+            }
+
             var facility = await _context.Facilities
                 .Include(f => f.Owner)
-                .FirstOrDefaultAsync(m => m.Id == id);
+                .Include(f => f.StorageUnits) // Include storage units to show impact of deletion
+                .FirstOrDefaultAsync(m => m.Id == id && m.OwnerId == currentUser.Id);
             if (facility == null)
             {
                 return NotFound();
