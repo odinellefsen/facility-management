@@ -27,13 +27,20 @@ namespace FacilityManagement.Controllers
                 return NotFound();
             }
 
+            var currentUser = await _userManager.GetUserAsync(User);
+            if (currentUser == null)
+            {
+                return Challenge();
+            }
+
             var storageUnit = await _context.StorageUnits
                 .Include(s => s.Facility)
                 .Include(s => s.Occupant)
-                .FirstOrDefaultAsync(m => m.Id == id);
+                .FirstOrDefaultAsync(m => m.Id == id && m.Facility.OwnerId == currentUser.Id);
+
             if (storageUnit == null)
             {
-                return NotFound();
+                return NotFound("Storage unit not found or you don't have permission to view it.");
             }
 
             return View(storageUnit);
@@ -205,16 +212,22 @@ namespace FacilityManagement.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Occupy(int id, string occupantId)
         {
+            var currentUser = await _userManager.GetUserAsync(User);
+            if (currentUser == null)
+            {
+                return Challenge();
+            }
+
+            // Verify the occupantId matches the current user (prevent occupying for someone else)
+            if (occupantId != currentUser.Id)
+            {
+                return Forbid("You can only occupy storage units for yourself.");
+            }
+
             var storageUnit = await _context.StorageUnits.FindAsync(id);
             if (storageUnit == null || storageUnit.IsOccupied)
             {
-                return NotFound();
-            }
-
-            var user = await _context.Users.FindAsync(occupantId);
-            if (user == null)
-            {
-                return NotFound();
+                return NotFound("Storage unit not found or already occupied.");
             }
 
             storageUnit.IsOccupied = true;
@@ -224,7 +237,7 @@ namespace FacilityManagement.Controllers
             _context.Update(storageUnit);
             await _context.SaveChangesAsync();
 
-            return RedirectToAction(nameof(Details), new { id = id });
+            return Redirect(Request.Headers["Referer"].ToString());
         }
 
         // POST: StorageUnit/Vacate/5
@@ -232,10 +245,25 @@ namespace FacilityManagement.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Vacate(int id)
         {
-            var storageUnit = await _context.StorageUnits.FindAsync(id);
+            var currentUser = await _userManager.GetUserAsync(User);
+            if (currentUser == null)
+            {
+                return Challenge();
+            }
+
+            var storageUnit = await _context.StorageUnits
+                .Include(s => s.Facility)
+                .FirstOrDefaultAsync(s => s.Id == id);
+
             if (storageUnit == null || !storageUnit.IsOccupied)
             {
-                return NotFound();
+                return NotFound("Storage unit not found or not occupied.");
+            }
+
+            // Only allow vacating if user is the occupant OR the facility owner
+            if (storageUnit.OccupantId != currentUser.Id && storageUnit.Facility.OwnerId != currentUser.Id)
+            {
+                return Forbid("You can only vacate storage units you occupy or own.");
             }
 
             storageUnit.IsOccupied = false;
@@ -245,7 +273,7 @@ namespace FacilityManagement.Controllers
             _context.Update(storageUnit);
             await _context.SaveChangesAsync();
 
-            return RedirectToAction(nameof(Details), new { id = id });
+            return Redirect(Request.Headers["Referer"].ToString());
         }
 
         // GET: StorageUnit/Delete/5
@@ -256,13 +284,20 @@ namespace FacilityManagement.Controllers
                 return NotFound();
             }
 
+            var currentUser = await _userManager.GetUserAsync(User);
+            if (currentUser == null)
+            {
+                return Challenge();
+            }
+
             var storageUnit = await _context.StorageUnits
                 .Include(s => s.Facility)
                 .Include(s => s.Occupant)
-                .FirstOrDefaultAsync(m => m.Id == id);
+                .FirstOrDefaultAsync(m => m.Id == id && m.Facility.OwnerId == currentUser.Id);
+
             if (storageUnit == null)
             {
-                return NotFound();
+                return NotFound("Storage unit not found or you don't have permission to delete it.");
             }
 
             return View(storageUnit);
@@ -273,14 +308,25 @@ namespace FacilityManagement.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var storageUnit = await _context.StorageUnits.FindAsync(id);
-            if (storageUnit != null)
+            var currentUser = await _userManager.GetUserAsync(User);
+            if (currentUser == null)
             {
-                _context.StorageUnits.Remove(storageUnit);
+                return Challenge();
             }
 
+            var storageUnit = await _context.StorageUnits
+                .Include(s => s.Facility)
+                .FirstOrDefaultAsync(s => s.Id == id && s.Facility.OwnerId == currentUser.Id);
+
+            if (storageUnit == null)
+            {
+                return NotFound("Storage unit not found or you don't have permission to delete it.");
+            }
+
+            _context.StorageUnits.Remove(storageUnit);
             await _context.SaveChangesAsync();
-            return RedirectToAction(nameof(Index));
+
+            return RedirectToAction("Details", "Facility", new { id = storageUnit.FacilityId });
         }
 
         private bool StorageUnitExists(int id)
