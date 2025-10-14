@@ -15,15 +15,16 @@ builder.Services.AddDbContext<FacilityManagementContext>(options =>
 // Configure Identity
 builder.Services.AddDefaultIdentity<ApplicationUser>(options =>
 {
-    // Password settings
-    options.Password.RequireDigit = true;
-    options.Password.RequireLowercase = true;
+    // Password settings - Make them more relaxed
+    options.Password.RequireDigit = false;
+    options.Password.RequireLowercase = false;
     options.Password.RequireNonAlphanumeric = false;
-    options.Password.RequireUppercase = true;
+    options.Password.RequireUppercase = false;
     options.Password.RequiredLength = 6;
     options.Password.RequiredUniqueChars = 1;
 
     // Lockout settings
+    // This is to protect against brute force attacks
     options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(5);
     options.Lockout.MaxFailedAccessAttempts = 5;
     options.Lockout.AllowedForNewUsers = true;
