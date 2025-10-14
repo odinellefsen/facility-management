@@ -19,26 +19,26 @@
                 <div class="card h-100">
                     <div class="card-header">
                         <h5 class="card-title mb-0">@facility.Name</h5>
-                        <small class="text-muted">Owner: @facility.Owner.FullName</small>
+                        <small class="text-muted">Owner: @facility?.Owner?.FullName</small>
                     </div>
                     <div class="card-body">
-                        @if (!string.IsNullOrEmpty(facility.Description))
+                        @if (!string.IsNullOrEmpty(facility?.Description))
                         {
                             <p class="card-text">@facility.Description</p>
                         }
 
                         <p class="card-text">
                             <strong>Address:</strong><br>
-                            @facility.Address<br>
-                            @if (!string.IsNullOrEmpty(facility.City))
+                            @facility?.Address<br>
+                            @if (!string.IsNullOrEmpty(facility?.City))
                             {
-                                <span>@facility.City @facility.PostalCode</span>
+                                <span>@facility?.City @facility?.PostalCode</span>
                             }
                         </p>
 
                         <div class="mb-3">
                             <span class="badge bg-success">@availableUnits.Count Available Units</span>
-                            <span class="badge bg-secondary">@facility.StorageUnits.Count Total Units</span>
+                            <span class="badge bg-secondary">@facility?.StorageUnits.Count Total Units</span>
                         </div>
 
                         @if (availableUnits.Any())
@@ -70,7 +70,7 @@
                                 @if (availableUnits.Count > 3)
                                 {
                                     <div class="list-group-item px-0 py-2 text-center">
-                                        <a asp-controller="Facility" asp-action="Details" asp-route-id="@facility.Id"
+                                        <a asp-controller="Facility" asp-action="Details" asp-route-id="@facility?.Id"
                                             class="btn btn-sm btn-outline-primary">
                                             View All @availableUnits.Count Units
                                         </a>
@@ -86,7 +86,7 @@
                     @if (User.Identity!.IsAuthenticated)
                     {
                     <div class="card-footer">
-                        <a asp-controller="Facility" asp-action="Details" asp-route-id="@facility.Id"
+                        <a asp-controller="Facility" asp-action="Details" asp-route-id="@facility?.Id"
                             class="btn btn-outline-info btn-sm">
                             View Details
                         </a>
