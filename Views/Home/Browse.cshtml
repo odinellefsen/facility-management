@@ -83,15 +83,6 @@
                             <p class="text-muted">No available units at this facility.</p>
                         }
                     </div>
-                    @if (User.Identity!.IsAuthenticated)
-                    {
-                    <div class="card-footer">
-                        <a asp-controller="Facility" asp-action="Details" asp-route-id="@facility?.Id"
-                            class="btn btn-outline-info btn-sm">
-                            View Details
-                        </a>
-                    </div>
-                    }
                 </div>
             </div>
         }
