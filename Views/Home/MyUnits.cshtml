@@ -5,7 +5,6 @@
 
 <div class="d-flex justify-content-between align-items-center mb-4">
     <h2>My Occupied Storage Units</h2>
-    <a asp-action="Browse" class="btn btn-primary">Browse Available Units</a>
 </div>
 
 @if (Model.Any())
@@ -88,7 +87,7 @@ else
                 <i class="fas fa-warehouse fa-3x text-muted mb-3"></i>
                 <h4>No Occupied Units</h4>
                 <p class="text-muted">You haven't occupied any storage units yet.</p>
-                <a asp-action="Browse" class="btn btn-primary">Browse Available Units</a>
+                <a asp-action="Browse" class="btn btn-primary">Browse Storage Units</a>
             </div>
         </div>
     </div>
